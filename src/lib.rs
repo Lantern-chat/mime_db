@@ -2,13 +2,13 @@ use unicase::UniCase;
 
 #[derive(Debug, Clone, Copy)]
 pub struct MimeEntry {
-    compressible: bool,
-    extensions: &'static [&'static str],
+    pub compressible: bool,
+    pub extensions: &'static [&'static str],
 }
 
 #[derive(Debug, Clone, Copy)]
 pub struct ExtEntry {
-    types: &'static [&'static str],
+    pub types: &'static [&'static str],
 }
 
 include!(concat!(env!("OUT_DIR"), "/mime_db.rs"));
