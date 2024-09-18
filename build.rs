@@ -1,27 +1,25 @@
 use std::collections::HashMap;
 use std::env;
 use std::fs::File;
-use std::io::{self, BufWriter, Write};
+use std::io::{self, BufWriter};
 use std::path::Path;
+
+use std::fmt::Write as _;
+use std::io::Write as _;
 
 use unicase::UniCase;
 
-#[derive(serde::Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Default, serde::Deserialize, Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
 enum Source {
     #[serde(rename = "iana")]
-    IANA = 0,
+    Iana = 0,
     #[serde(rename = "apache")]
     Apache = 1,
     #[serde(rename = "nginx")]
     Nginx = 2,
 
+    #[default]
     None = 3,
-}
-
-impl Default for Source {
-    fn default() -> Self {
-        Source::None
-    }
 }
 
 #[derive(Debug, serde::Deserialize)]
@@ -57,7 +55,7 @@ fn main() -> io::Result<()> {
         );
 
         for ext in &entry.extensions {
-            buf += &format!("\"{ext}\", ");
+            write!(buf, "\"{ext}\", ").unwrap();
 
             ext_map.entry(ext).or_default().insert(mime, entry.source);
         }
@@ -75,7 +73,7 @@ fn main() -> io::Result<()> {
         let mut buf = "ExtEntry { types: &[".to_owned();
 
         for (mime, _) in mappings.iter() {
-            buf += &format!("\"{mime}\", ");
+            write!(buf, "\"{mime}\", ").unwrap();
         }
 
         buf += "]}";
