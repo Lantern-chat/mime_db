@@ -1,3 +1,4 @@
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::env;
 use std::fs::File;
@@ -46,9 +47,16 @@ fn main() -> io::Result<()> {
     let mut mime_to_ext_map = phf_codegen::Map::new();
     let mut ext_to_mime_map = phf_codegen::Map::new();
 
-    let mut ext_map: HashMap<&str, HashMap<&str, Source>> = HashMap::new();
+    let mut ext_map: HashMap<&str, HashMap<Cow<str>, Source>> = HashMap::new();
 
     for (mime, entry) in db.iter() {
+        let mut mime = Cow::Borrowed(mime.as_str());
+
+        // this is rare/never, but just in case a future update adds an uppercase mime
+        if mime.contains(|c: char| c.is_uppercase()) {
+            mime = Cow::Owned(mime.to_lowercase());
+        }
+
         let mut buf = format!(
             "MimeEntry {{ compressible: {}, extensions: &[",
             entry.compressible
@@ -57,7 +65,7 @@ fn main() -> io::Result<()> {
         for ext in &entry.extensions {
             write!(buf, "\"{ext}\", ").unwrap();
 
-            ext_map.entry(ext).or_default().insert(mime, entry.source);
+            ext_map.entry(ext).or_default().insert(mime.clone(), entry.source);
         }
 
         buf += "]}";

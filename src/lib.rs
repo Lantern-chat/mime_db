@@ -23,6 +23,10 @@ pub fn lookup_mime(mime: &str) -> Option<&MimeEntry> {
     MIME_TO_EXT.get(&UniCase::new(mime))
 }
 
+pub fn list_mimes() -> impl Iterator<Item = (&'static str, &'static MimeEntry)> {
+    MIME_TO_EXT.into_iter().map(|(k, v)| (k as &str, v))
+}
+
 #[inline]
 pub fn lookup_mime_from_ext(ext: &str) -> Option<&MimeEntry> {
     let entry = lookup_ext(ext)?;
