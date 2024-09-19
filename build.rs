@@ -26,7 +26,7 @@ enum Source {
 #[derive(Debug, serde::Deserialize)]
 struct MimeEntry {
     #[serde(default)]
-    pub compressible: bool,
+    pub compressible: Option<bool>,
 
     #[serde(default)]
     pub extensions: Vec<String>,
@@ -59,7 +59,11 @@ fn main() -> io::Result<()> {
 
         let mut buf = format!(
             "MimeEntry {{ compressible: {}, extensions: &[",
-            entry.compressible
+            match entry.compressible {
+                Some(true) => "Compressible::Yes",
+                Some(false) => "Compressible::No",
+                _ => "Compressible::Unspecified",
+            }
         );
 
         for ext in &entry.extensions {

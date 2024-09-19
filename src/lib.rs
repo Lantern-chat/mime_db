@@ -2,9 +2,16 @@
 
 use unicase::UniCase;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Compressible {
+    Yes,
+    No,
+    Unspecified,
+}
+
 #[derive(Debug, Clone, Copy)]
 pub struct MimeEntry {
-    pub compressible: bool,
+    pub compressible: Compressible,
     pub extensions: &'static [&'static str],
 }
 
