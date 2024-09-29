@@ -1,5 +1,5 @@
 use std::borrow::Cow;
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use std::env;
 use std::fs::File;
 use std::io::{self, BufWriter};
@@ -78,13 +78,24 @@ fn main() -> io::Result<()> {
     }
 
     for (ext, mapping_set) in ext_map.iter() {
-        let mut mappings = mapping_set.iter().collect::<Vec<_>>();
+        let mut mappings = VecDeque::with_capacity(mapping_set.len());
 
-        mappings.sort_by_key(|(_, source)| *source);
+        for mapping @ (mime, _) in mapping_set {
+            if mime.starts_with("video/") || mime.starts_with("audio/") || mime.starts_with("image/") {
+                mappings.push_front(mapping);
+            } else {
+                mappings.push_back(mapping);
+            }
+        }
+
+        let (front, back) = mappings.as_mut_slices();
+
+        front.sort_by_key(|(_, source)| *source);
+        back.sort_by_key(|(_, source)| *source);
 
         let mut buf = "ExtEntry { types: &[".to_owned();
 
-        for (mime, _) in mappings.iter() {
+        for (mime, _) in mappings {
             write!(buf, "\"{mime}\", ").unwrap();
         }
 

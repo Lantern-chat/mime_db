@@ -188,3 +188,13 @@ pub fn from_prefix(bytes: &[u8]) -> Option<(&str, Option<&MimeEntry>)> {
 
     None
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_mp4() {
+        assert_eq!(lookup_ext("mp4").unwrap().types[0], "video/mp4");
+    }
+}
